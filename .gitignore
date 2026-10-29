@@ -1,0 +1,39 @@
+# dependencias
+node_modules/
+
+# datos del servidor local (clasificación, mapas de la comunidad, visitas)
+data/
+
+# secretos: cadenas de conexión, contraseñas
+.env
+.env.*
+!.env.example
+
+# app de escritorio de administración: solo para ti, no se publica
+admin-app/
+
+# restos que ya no usa el juego (por si siguen en la carpeta: así no se suben)
+www/admin.html
+www/js/admin.js
+www/dev-*.html
+www/assets/ui/deathcoffin.webp
+www/assets/ui/old_*.webp
+www/assets/ui/victory.png
+www/assets/ui/defeat.png
+www/assets/ui/icon_tfg3d.png
+www/assets/ui/trolls_fangs_goblins_tittle.webp
+www/assets/ui/td.webp
+
+# compilaciones y temporales
+dist/
+.vercel/
+*.log
+*.bak
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Android (aparcado)
+android/app/build/
+android/.gradle/
+ios/App/Pods/

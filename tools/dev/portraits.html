@@ -1,0 +1,61 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Retratos 3D</title>
+<script type="importmap">{ "imports": { "three": "/vendor/three.module.min.js" } }</script>
+<style>html,body{margin:0;background:transparent}canvas{display:block}</style></head>
+<body><script type="module">
+// Herramienta: dibuja el modelo 3D de un enemigo (?e=<código>) o de un héroe (?h=<id>) en tres cuartos,
+// con fondo transparente, para las imágenes de Instrucciones y del elector (tools/portraits.cjs)
+import * as THREE from 'three';
+import { createBoss } from '/js/bosses.js';
+import { createHero } from '/js/heroes.js';
+import { MinionRenderer, SKINS } from '/js/minions3d.js';
+const q = new URLSearchParams(location.search);
+const N = 320;
+const r = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+r.setPixelRatio(1);
+r.setSize(N, N);
+r.setClearColor(0x000000, 0);
+r.outputColorSpace = THREE.SRGBColorSpace;
+r.toneMapping = THREE.ACESFilmicToneMapping;
+document.body.appendChild(r.domElement);
+const s = new THREE.Scene();
+s.add(new THREE.HemisphereLight(0xfff2dc, 0x3a2a30, 1.5 * (Number(q.get('bright')) || 1)));
+const key = new THREE.DirectionalLight(0xffe6c0, 2.8); key.position.set(4, 6, 5); s.add(key);
+const rim = new THREE.DirectionalLight(q.get('rim') ? Number(q.get('rim')) : 0x9ab8ff, 2.6); rim.position.set(-4, 3, -4); s.add(rim);
+const root = new THREE.Group();
+s.add(root);
+const t = 1.3;
+if (q.get('h')) {
+  const h = createHero(q.get('h'));
+  h.update(0.016, t, {});
+  root.add(h.group);
+} else if (q.get('e') === 'm') {
+  // esbirros: tres aspectos distintos juntos
+  const mr = new MinionRenderer(root);
+  mr.begin();
+  const list = [[SKINS.minions[3], -1.6, 0.4], [SKINS.minions[0], 0, -0.6], [SKINS.minions[1], 1.6, 0.4]];
+  for (const [skin, x, z] of list) mr.add(skin, new THREE.Vector3(x, 0, z), 0.35, 1, t, 0.8, [1, 1, 1]);
+  mr.end();
+} else {
+  const b = createBoss(q.get('e'));
+  b.update(0.016, t);
+  b.group.position.y = 0;
+  root.add(b.group);
+}
+// encuadre: caja del modelo vista en tres cuartos, desde algo arriba
+root.updateMatrixWorld(true);
+const box = new THREE.Box3();
+root.traverse((o) => {
+  if (!o.isMesh) return;
+  if (o.isInstancedMesh) { if (!o.count) return; for (let i = 0; i < o.count; i++) { const m = new THREE.Matrix4(); o.getMatrixAt(i, m); o.geometry.computeBoundingBox(); box.union(o.geometry.boundingBox.clone().applyMatrix4(m.premultiply(o.matrixWorld))); } }
+  else { o.geometry.computeBoundingBox(); box.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld)); }
+});
+const c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3());
+const rad = Math.max(sz.x, sz.y, sz.z) * 0.62;
+const cam = new THREE.PerspectiveCamera(28, 1, 0.1, 500);
+const dir = new THREE.Vector3(0.75, 0.42, 1.25).normalize();
+cam.position.copy(c).addScaledVector(dir, rad / Math.sin(THREE.MathUtils.degToRad(14)));
+cam.lookAt(c);
+r.render(s, cam);
+window.ready = true;
+</script></body></html>

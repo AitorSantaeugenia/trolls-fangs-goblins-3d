@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#120b07" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Trolls, Fangs and Goblins 3D</title>
+  <link rel="icon" href="assets/ui/icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three.module.min.js" } }
+  </script>
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+  <div id="float-layer"></div>
+  <div id="weather-flash"></div>
+  <div id="hurt-flash"></div>
+
+  <!-- ── Pantalla de carga ── -->
+  <section id="screen-loading" class="screen door active">
+    <img class="logo" src="assets/ui/logo_tfg3d.webp" alt="Trolls, Fangs &amp; Goblins 3D" />
+    <div class="loading-bar"><div id="loading-fill"></div></div>
+    <p class="loading-text" id="loading-text">Afilando colmillos…</p>
+  </section>
+
+  <!-- ── Menú principal ── -->
+  <section id="screen-title" class="screen door">
+    <div class="title-wrap">
+      <img class="logo" src="assets/ui/logo_tfg3d.webp" alt="Trolls, Fangs &amp; Goblins 3D" />
+      <nav class="menu">
+        <button class="btn btn-gold big continue hidden" data-action="continue" id="btn-continue">Continuar<small id="continue-info"></small></button>
+        <button class="btn btn-gold big" data-action="play">Jugar</button>
+        <button class="btn" data-action="ranking">Clasificación</button>
+        <button class="btn" data-action="achievements">Logros <small id="ach-count"></small></button>
+        <button class="btn" data-action="editor">Editor de mapas</button>
+        <button class="btn" data-action="howto">Instrucciones</button>
+        <button class="btn" data-action="settings">Ajustes</button>
+      </nav>
+    </div>
+    <p class="credits">Remake 3D de <em>Trolls, Fangs and Goblins TD</em> · Aitor Santaeugenia · CC BY-NC-SA</p>
+  </section>
+
+  <!-- ── Selección de nivel ── -->
+  <section id="screen-levels" class="screen door">
+    <header class="screen-head">
+      <button class="btn icon" data-action="back" aria-label="Volver">‹</button>
+      <h2>Elige el campo de batalla</h2>
+    </header>
+    <div class="level-grid" id="level-grid"></div>
+    <p class="stars-legend"><span class="stars"><span class="on">★</span></span> Ganar &nbsp;·&nbsp; <span class="stars"><span class="on">★★</span></span> con la mitad de las vidas &nbsp;·&nbsp; <span class="stars"><span class="on">★★★</span></span> con el 90 % de las vidas &nbsp;·&nbsp; <b>∞</b> tu oleada récord en el modo infinito. Con trucos no se ganan estrellas.</p>
+    <h3 class="section-title">Mis mapas</h3>
+    <div class="level-grid" id="custom-grid"></div>
+    <h3 class="section-title">Mapas de la comunidad</h3>
+    <div class="level-grid">
+      <button class="panel level-card new-map community-btn" data-action="community"><span>🌍</span>Ver los mapas que ha creado la gente</button>
+    </div>
+  </section>
+
+  <!-- ── Mapas de la comunidad ── -->
+  <section id="screen-community" class="screen door">
+    <header class="screen-head">
+      <button class="btn icon" data-action="back" aria-label="Volver">‹</button>
+      <h2>Mapas de la comunidad</h2>
+    </header>
+    <div class="panel community">
+      <div class="cm-bar">
+        <div class="tabs" id="cm-sort"><button class="tab active" data-sort="new">Nuevos</button><button class="tab" data-sort="popular">Más jugados</button></div>
+        <input id="cm-search" type="search" placeholder="Buscar por nombre, nick o descripción" autocomplete="off" />
+        <button class="btn btn-gold" id="cm-upload">Publicar un código</button>
+      </div>
+      <p class="hint">Mapas hechos con el editor por otros jugadores. Pulsa uno para ver cómo es. Para publicar el tuyo: botón <b>Publicar</b> en «Mis mapas» o pega su código <code>TFG1:…</code>.</p>
+      <div class="cm-list" id="cm-list"></div>
+    </div>
+  </section>
+
+  <!-- ── Editor de mapas ── -->
+  <section id="screen-editor" class="screen door">
+    <header class="screen-head">
+      <button class="btn icon" id="ed-back" aria-label="Volver">‹</button>
+      <h2>Editor de mapas</h2>
+    </header>
+    <div class="editor">
+      <div class="ed-board panel">
+        <canvas id="ed-canvas"></canvas>
+        <p id="ed-status" class="ed-status"></p>
+        <div class="ed-row">
+          <button class="btn small" id="ed-undo">↶ Deshacer</button>
+          <button class="btn small danger" id="ed-clear">Borrar camino</button>
+        </div>
+      </div>
+      <div class="ed-side panel">
+        <label class="ed-field"><span>Nombre</span><input id="ed-name" maxlength="40" /></label>
+        <div class="ed-field"><span>Bioma</span><div class="ed-biomes" id="ed-biomes"></div></div>
+        <div class="ed-two">
+          <label class="ed-field"><span>Vidas</span><input id="ed-hp" type="number" min="1" max="99" /></label>
+          <label class="ed-field"><span>Oro inicial</span><input id="ed-gold" type="number" min="100" max="5000" step="50" /></label>
+        </div>
+        <label class="ed-field"><span>Oleadas (copiadas de…)</span><select id="ed-preset"></select></label>
+        <div class="ed-field"><span>Música</span><select id="ed-music"></select>
+          <input type="file" id="ed-music-file" accept="audio/*" hidden />
+          <small class="ed-music-hint" id="ed-music-hint"></small></div>
+        <div class="ed-row">
+          <button class="btn btn-gold" id="ed-play">▶ Probar</button>
+          <button class="btn" id="ed-save">Guardar</button>
+        </div>
+        <div class="ed-row">
+          <button class="btn small" id="ed-export">Compartir código</button>
+          <button class="btn small" id="ed-import">Cargar código</button>
+        </div>
+        <div id="ed-code-box" class="hidden">
+          <textarea id="ed-code" rows="3" spellcheck="false"></textarea>
+          <p class="hint" id="ed-code-hint"></p>
+          <button class="btn small" id="ed-copy">Copiar</button>
+        </div>
+      </div>
+    </div>
+    <div id="ed-toast"></div>
+  </section>
+
+  <!-- ── Logros ── -->
+  <section id="screen-achievements" class="screen door">
+    <header class="screen-head">
+      <button class="btn icon" data-action="back" aria-label="Volver">‹</button>
+      <h2>Logros</h2>
+    </header>
+    <div class="panel ach-panel" id="ach-list"></div>
+  </section>
+
+  <!-- ── Clasificación del modo infinito ── -->
+  <section id="screen-ranking" class="screen door">
+    <header class="screen-head">
+      <button class="btn icon" data-action="back" aria-label="Volver">‹</button>
+      <h2>Clasificación</h2>
+    </header>
+    <div class="panel ranking">
+      <p class="hint">Modo infinito: quién ha llegado más lejos en cada mapa (oleada alcanzada; a igualdad, más bajas). Al caer en una partida infinita puedes guardar tu nombre.</p>
+      <div class="tabs" id="lb-tabs"></div>
+      <div id="lb-body"></div>
+    </div>
+  </section>
+
+  <!-- ── Instrucciones ── -->
+  <section id="screen-howto" class="screen door">
+    <header class="screen-head">
+      <button class="btn icon" data-action="back" aria-label="Volver">‹</button>
+      <h2>Instrucciones</h2>
+    </header>
+    <div class="panel howto">
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="towers">Torres</button>
+        <button class="tab" data-tab="enemies">Enemigos</button>
+        <button class="tab" data-tab="heroes">Héroes</button>
+        <button class="tab" data-tab="weather">Clima</button>
+        <button class="tab" data-tab="controls">Controles</button>
+      </div>
+      <div class="tab-body active" id="tab-towers"></div>
+      <div class="tab-body" id="tab-enemies"></div>
+      <div class="tab-body" id="tab-heroes"></div>
+      <div class="tab-body" id="tab-weather"></div>
+      <div class="tab-body" id="tab-controls">
+        <div class="controls-grid">
+          <div>
+            <h3>📱 Móvil</h3>
+            <ul>
+              <li><b>Toca una torre</b> de la barra y luego <b>toca el mapa</b> para colocarla. Confirma con ✓.</li>
+              <li><b>Arrastra con un dedo</b> para girar la cámara.</li>
+              <li><b>Pellizca</b> para hacer zoom y <b>arrastra con dos dedos</b> para mover.</li>
+              <li><b>Toca una torre construida</b> para mejorarla o venderla.</li>
+              <li>Tu <b>héroe</b> y sus habilidades están abajo a la izquierda: toca su retrato para seleccionarlo y luego el mapa para moverlo.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>🖱️ Ordenador</h3>
+            <ul>
+              <li><b>Clic</b> en una torre de la barra (o teclas <kbd>1</kbd>–<kbd>7</kbd>) y <b>clic</b> en el mapa.</li>
+              <li><b>Arrastrar</b> gira la cámara · <b>rueda</b> zoom · <b>clic derecho</b> mover.</li>
+              <li><kbd>Esc</kbd> pausa / cancela · <kbd>Espacio</kbd> llama la oleada · <kbd>F</kbd> velocidad.</li>
+              <li><kbd>Q</kbd> / <kbd>W</kbd> habilidades del héroe, <kbd>E</kbd> definitiva · <kbd>H</kbd> seleccionar al héroe; luego <b>clic derecho</b> (o clic) en el mapa para moverlo · <kbd>A</kbd> modo auto.</li>
+              <li><kbd>Enter</kbd> … quién sabe qué pasará.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="hint">El clima cambia durante la partida y tiene efectos: mira la pestaña «Clima». Llama a la siguiente oleada antes de tiempo para ganar oro extra. Los enemigos que llegan al castillo te quitan una vida.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Ajustes ── -->
+  <section id="screen-settings" class="screen door">
+    <header class="screen-head">
+      <button class="btn icon" data-action="back" aria-label="Volver">‹</button>
+      <h2>Ajustes</h2>
+    </header>
+    <div class="panel settings">
+      <label class="row"><span>Música</span><input type="checkbox" id="set-music" /></label>
+      <label class="row"><span>Efectos de sonido</span><input type="checkbox" id="set-sfx" /></label>
+      <label class="row"><span>Jefes en 3D</span><input type="checkbox" id="set-boss3d" /></label>
+      <label class="row"><span>Esbirros en 3D</span><input type="checkbox" id="set-minion3d" /></label>
+      <label class="row"><span>Clima dinámico</span><input type="checkbox" id="set-weather" /></label>
+      <label class="row"><span>El clima afecta a la partida</span><input type="checkbox" id="set-weatherfx" /></label>
+      <div class="row"><span>Calidad gráfica</span>
+        <div class="seg" id="set-quality">
+          <button data-q="low">Baja</button><button data-q="medium">Media</button><button data-q="high">Alta</button><button data-q="ultra">Ultra</button>
+        </div>
+      </div>
+      <div class="row"><span>Tutorial</span><button class="btn small" id="set-tutorial">Repetir en Fácil</button></div>
+      <div class="row"><span>Progreso</span><button class="btn small danger" id="set-reset">Borrar progreso</button></div>
+    </div>
+  </section>
+
+  <!-- ── HUD de partida ── -->
+  <div id="hud" class="hidden">
+    <div class="hud-top">
+      <div class="pills">
+        <div class="pill" title="Vidas"><img src="assets/ui/vida.webp" alt="" /><span id="hud-hp">30</span></div>
+        <div class="pill gold" title="Oro"><img src="assets/ui/coin.webp" alt="" /><span id="hud-gold">800</span></div>
+      </div>
+      <div class="wave-box">
+        <div class="pill wave" id="hud-wave">Oleada 1/4</div>
+        <button class="btn btn-gold call" id="hud-call">▶ Oleada 1 <small id="hud-call-t"></small></button>
+      </div>
+      <div class="hud-buttons">
+        <button class="btn icon" id="hud-speed" title="Velocidad (F)">x1</button>
+        <button class="btn icon" id="hud-cam" title="Centrar cámara">⌖</button>
+        <button class="btn icon" id="hud-pause" title="Pausa (Esc)">❚❚</button>
+      </div>
+    </div>
+    <div class="tower-dock" id="tower-dock"></div>
+    <div id="hero-panel" class="hidden">
+      <div class="hpn-left">
+        <div class="hpn-portrait" id="hpn-portrait" title="Seleccionar héroe (H)">
+          <canvas id="hpn-canvas"></canvas>
+          <svg id="hpn-doodles" viewBox="0 0 100 100" aria-hidden="true"></svg>
+          <div class="hpn-dead" id="hpn-dead"></div>
+          <span class="hpn-key">H</span>
+        </div>
+        <div class="hpn-bar life"><i id="hpn-hp"></i><span id="hpn-hp-t">100%</span></div>
+        <div class="hpn-bar energy" title="Energía: se carga con las bajas; llena, permite la definitiva (E)"><i id="hpn-en"></i><span id="hpn-en-t">0%</span></div>
+      </div>
+      <div class="hpn-info">
+        <div class="hpn-name" id="hpn-name"></div>
+        <div class="hpn-class" id="hpn-class"></div>
+        <div class="hpn-stats" id="hpn-stats"></div>
+      </div>
+      <div class="hpn-right">
+        <div class="hpn-abil" id="hpn-abil"></div>
+        <div class="hpn-row">
+          <div class="hpn-passive" id="hpn-passive"></div>
+          <button class="hc-auto" id="hc-auto" title="Modo auto (A): va solo a por los enemigos por todo el mapa">AUTO</button>
+        </div>
+      </div>
+    </div>
+    <div id="abilities"></div>
+    <div id="tower-panel" class="panel hidden">
+      <button class="close" id="tp-close" aria-label="Cerrar">✕</button>
+      <div class="tp-head"><img id="tp-icon" alt="" /><div><h3 id="tp-name"></h3><div class="stars" id="tp-level"></div></div></div>
+      <div class="tp-stats" id="tp-stats"></div>
+      <div class="tp-label">Atacar a</div>
+      <div class="seg tp-priority" id="tp-priority"></div>
+      <div class="tp-actions">
+        <button class="btn btn-gold" id="tp-upgrade">Mejorar</button>
+        <button class="btn" id="tp-sell">Vender</button>
+      </div>
+    </div>
+    <div id="build-confirm" class="hidden">
+      <button class="round ok" id="bc-ok" aria-label="Construir">✓</button>
+      <button class="round no" id="bc-no" aria-label="Cancelar">✕</button>
+    </div>
+    <div id="coach" class="panel hidden">
+      <div class="coach-step" id="coach-step"></div>
+      <p class="coach-text" id="coach-text"></p>
+      <button class="btn small" id="coach-skip">Saltar tutorial</button>
+    </div>
+    <div id="banner"></div>
+    <div id="toast"></div>
+    <div id="weather-msg"></div>
+    <div id="cheat-box" class="hidden">
+      <input id="cheat-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe un truco…" />
+      <small id="cheat-warn" class="hidden">⚠ Modo infinito: con un truco, esta partida ya no entra en la clasificación</small>
+    </div>
+  </div>
+
+  <!-- ── Elegir héroe ── -->
+  <div id="overlay-hero" class="overlay hidden">
+    <div class="panel hero-pick">
+      <h2>Elige tu héroe</h2>
+      <p class="hero-pick-map" id="hero-pick-map"></p>
+      <p class="hero-pick-note hidden" id="hero-pick-note"></p>
+      <div class="hero-grid" id="hero-grid"></div>
+      <div class="hero-pick-foot">
+        <button class="btn small" id="hero-cancel">‹ Volver</button>
+        <small>Con héroe salen más esbirros (el oro total es parecido).</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Pausa ── -->
+  <div id="overlay-pause" class="overlay hidden">
+    <div class="panel menu-panel">
+      <h2>Pausa</h2>
+      <button class="btn btn-gold" data-action="resume">Continuar</button>
+      <button class="btn" data-action="restart">Reiniciar nivel</button>
+      <button class="btn" data-action="pause-howto">Instrucciones</button>
+      <button class="btn" data-action="pause-settings">Ajustes</button>
+      <button class="btn" data-action="cheats">Trucos</button>
+      <button class="btn hidden" data-action="surrender" id="btn-surrender">Rendirse y guardar puntuación</button>
+      <button class="btn danger" data-action="quit">Salir al menú</button>
+    </div>
+  </div>
+
+  <!-- ── Fin de partida ── -->
+  <div id="overlay-end" class="overlay hidden">
+    <div class="end-wrap">
+      <img id="end-img" alt="" />
+      <div class="stars big" id="end-stars"></div>
+      <p class="end-stars-note hidden" id="end-stars-note"></p>
+      <div class="panel end-panel">
+        <div class="end-stats" id="end-stats"></div>
+        <p class="unlock hidden" id="end-unlock">🔥 ¡Has desbloqueado la Torre de Fuego para siempre!</p>
+        <div class="end-rank hidden" id="end-rank"></div>
+        <div class="end-actions">
+          <button class="btn" data-action="restart">Reintentar</button>
+          <button class="btn btn-gold" data-action="next" id="end-next">Siguiente nivel</button>
+          <button class="btn" data-action="quit">Menú</button>
+        </div>
+      </div>
+    </div>
+    <div id="coffin" class="hidden" aria-hidden="true"></div>
+  </div>
+
+  <!-- ── Ficha de un mapa de la comunidad ── -->
+  <div id="overlay-map" class="overlay hidden">
+    <div class="panel cm-detail">
+      <button class="btn icon cm-close" id="cm-detail-close" aria-label="Cerrar">✕</button>
+      <canvas id="cm-preview"></canvas>
+      <div class="cm-d-body">
+        <h2 id="cm-d-name"></h2>
+        <p class="cm-d-by" id="cm-d-by"></p>
+        <div class="chips" id="cm-d-stats"></div>
+        <p class="cm-d-desc" id="cm-d-desc"></p>
+        <div class="cm-d-actions" id="cm-d-actions">
+          <button class="btn btn-gold" data-a="play">▶ Jugar</button>
+          <button class="btn" data-a="endless">∞ Infinito</button>
+          <button class="btn" data-a="save">Guardar en Mis mapas</button>
+          <button class="btn" data-a="copy">Copiar código</button>
+        </div>
+        <textarea id="cm-d-code" class="hidden" readonly rows="2"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Publicar un mapa ── -->
+  <div id="overlay-publish" class="overlay hidden">
+    <form class="panel pub-panel" id="pub-form" autocomplete="off">
+      <h2 id="pub-title">Publicar un mapa</h2>
+      <canvas id="pub-preview"></canvas>
+      <label id="pub-code-row">Código del mapa<textarea id="pub-code" rows="2" placeholder="TFG1:…" spellcheck="false"></textarea></label>
+      <div class="pub-row">
+        <label>Nombre del mapa<input id="pub-name" maxlength="40" /></label>
+        <label>Tu nick<input id="pub-author" maxlength="20" required /></label>
+      </div>
+      <label>Descripción <small id="pub-count">0 / 400</small><textarea id="pub-desc" rows="3" maxlength="400" placeholder="Qué tiene de especial, cómo se juega, qué dificultad tiene…"></textarea></label>
+      <p class="lb-msg" id="pub-msg"></p>
+      <div class="pub-actions">
+        <button class="btn" type="button" id="pub-cancel">Cancelar</button>
+        <button class="btn btn-gold" type="submit" id="pub-send">Publicar</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="ach-pop"></div>
+  <div id="ult-overlay"></div>
+  <div id="snap-flash"></div>
+  <div id="freeze-flash"></div>
+  <div id="rotate-hint" class="hidden">↻ Gira el móvil para jugar en horizontal</div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

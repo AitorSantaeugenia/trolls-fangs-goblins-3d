@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;background:#556}canvas{display:block}</style>
+<script type="importmap">{ "imports": { "three": "/vendor/three.module.min.js" } }</script></head><body>
+<script type="module">
+import * as THREE from 'three';
+import { MinionRenderer, SKINS } from '/js/minions3d.js';
+const r = new THREE.WebGLRenderer({ antialias: true }); r.setSize(1500, 560); document.body.appendChild(r.domElement);
+r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping;
+const s = new THREE.Scene(); s.background = new THREE.Color(0x6a7080);
+s.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.4));
+const d = new THREE.DirectionalLight(0xffffff, 2.2); d.position.set(5, 10, 8); s.add(d);
+const cam = new THREE.PerspectiveCamera(30, 1500 / 560, 1, 300); cam.position.set(0, 14, 62); cam.lookAt(0, 3, 0);
+const mr = new MinionRenderer(s);
+const yaw = parseFloat(new URLSearchParams(location.search).get('yaw') || '0.4');
+let t = 0;
+const loop = () => {
+  t += 0.016; mr.begin();
+  ['minions', 'hell'].forEach((set, row) => SKINS[set].forEach((sk, i) => {
+    mr.add(sk, new THREE.Vector3((i - 7) * 4.2, row === 0 ? 7 : -1, row === 0 ? -6 : 4), yaw, 3.6 / mr.heightOf(sk), t, t * 5 + i, [1, 1, 1], 0);
+  }));
+  mr.end(); r.render(s, cam); requestAnimationFrame(loop);
+};
+loop(); window.ready = true;
+</script></body></html>

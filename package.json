@@ -1,0 +1,17 @@
+{
+  "name": "trolls-fangs-goblins-3d",
+  "version": "1.11.1",
+  "description": "Remake 3D (three.js) de Trolls, Fangs and Goblins TD para navegador",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.mjs",
+    "balance": "node tools/balance.mjs"
+  },
+  "dependencies": {
+    "mongodb": "^6.10.0"
+  },
+  "author": "Remake 3D basado en el original de Aitor Santaeugenia",
+  "license": "CC-BY-NC-SA-4.0"
+}

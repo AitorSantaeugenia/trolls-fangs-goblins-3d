@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;background:#556}canvas{display:block}</style>
+<script type="importmap">{ "imports": { "three": "/vendor/three.module.min.js" } }</script></head><body>
+<script type="module">
+import * as THREE from 'three';
+import { createBoss } from '/js/bosses.js';
+const r = new THREE.WebGLRenderer({ antialias: true }); r.setSize(1400, 520); document.body.appendChild(r.domElement);
+r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping;
+const s = new THREE.Scene(); s.background = new THREE.Color(0x6a7080);
+s.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.4));
+const d = new THREE.DirectionalLight(0xffffff, 2.2); d.position.set(5, 10, 8); s.add(d);
+const cam = new THREE.PerspectiveCamera(30, 1400 / 520, 1, 200); cam.position.set(0, 9, 40); cam.lookAt(0, 3, 0);
+const codes = new URLSearchParams(location.search).get('c')?.split(',') || ['d', 'D', 'L', 'K', 'B', 'l', 'q', 'S'];
+const yaw = parseFloat(new URLSearchParams(location.search).get('yaw') || '0.5');
+const bs = codes.map((c, i) => { const b = createBoss(c); const k = 6 / b.height; b.group.scale.setScalar(k); b.group.position.set((i - (codes.length - 1) / 2) * 6.5, b.liftY * k * 0.3, 0); b.group.rotation.y = yaw; s.add(b.group); return b; });
+let t = 0; const loop = () => { t += 0.016; bs.forEach((b) => b.update(0.016, t)); r.render(s, cam); requestAnimationFrame(loop); }; loop();
+window.ready = true;
+</script></body></html>

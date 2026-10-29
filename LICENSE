@@ -1,0 +1,39 @@
+Trolls, Fangs & Goblins 3D
+Copyright (c) 2026 Darkstein
+
+Este proyecto es un remake en 3D de «Trolls, Fangs and Goblins TD», de Aitor Santaeugenia,
+publicado con la licencia Creative Commons Reconocimiento-NoComercial-CompartirIgual 4.0
+Internacional (CC BY-NC-SA 4.0). Este remake se distribuye con la misma licencia.
+
+  CC BY-NC-SA 4.0
+  Resumen:        https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es
+  Texto legal:    https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.es
+
+Puedes copiar, redistribuir y adaptar el material siempre que:
+  - Reconocimiento: cites al autor original (Aitor Santaeugenia) y a este remake, enlaces la
+    licencia e indiques si has hecho cambios.
+  - NoComercial: no lo uses con fines comerciales.
+  - CompartirIgual: si lo adaptas o creas a partir de él, lo distribuyas con esta misma licencia.
+
+----------------------------------------------------------------------------------------------
+Partes de terceros (con su propia licencia, no cubiertas por la anterior)
+
+  - three.js y sus módulos (www/vendor/): licencia MIT, (c) 2010-2024 three.js authors.
+    Ver www/vendor/LICENSE.
+  - Fuentes Cinzel y Cinzel Decorative (www/assets/fonts/): SIL Open Font License 1.1.
+    Ver www/assets/fonts/OFL-*.txt.
+  - MongoDB Node.js Driver (dependencia de npm, no incluida en el repositorio): Apache 2.0.
+
+Material con derechos de terceros (pendiente de sustituir)
+  Esta es una versión de prueba. Algunas pistas de música y efectos de sonido de
+  www/assets/audio/ (por ejemplo «Twisted Treeline», de Riot Games) y la imagen y los sonidos
+  del truco «thanos» (Marvel) pertenecen a sus respectivos propietarios. NO están cubiertos
+  por la licencia CC BY-NC-SA de este proyecto y se sustituirán por material propio o libre.
+  La pista «Marcha del Goblin» (goblinMarch.mp3) es original de este remake y sí está cubierta.
+
+----------------------------------------------------------------------------------------------
+English summary: 3D remake of "Trolls, Fangs and Goblins TD" by Aitor Santaeugenia, licensed
+under CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode), like the
+original. Third-party components keep their own licenses (three.js: MIT; Cinzel fonts: OFL 1.1).
+Some music, sound effects and the "thanos" cheat assets belong to their respective owners, are
+not covered by this license and will be replaced.

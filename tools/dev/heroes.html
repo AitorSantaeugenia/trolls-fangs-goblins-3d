@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;background:#556}canvas{display:block}</style>
+<script type="importmap">{ "imports": { "three": "/vendor/three.module.min.js" } }</script></head><body>
+<script type="module">
+import * as THREE from 'three';
+import { createHero } from '/js/heroes.js';
+const r = new THREE.WebGLRenderer({ antialias: true }); r.setSize(1200, 560); document.body.appendChild(r.domElement);
+r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping;
+const s = new THREE.Scene(); s.background = new THREE.Color(0x4a5060);
+s.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1.4));
+const d = new THREE.DirectionalLight(0xffffff, 2.2); d.position.set(5, 10, 8); s.add(d);
+const cam = new THREE.PerspectiveCamera(30, 1200 / 560, 1, 200); cam.position.set(0, 6, 26); cam.lookAt(0, 2.6, 0);
+const q = new URLSearchParams(location.search);
+const ids = (q.get('ids') || 'shaman,fang,gunner,gunner').split(',');
+const yaws = [0.5, 0.5, -1.2, 2.6];
+const hs = ids.map((id, i) => { const h = createHero(id); const k = 4.5 / h.height; h.group.scale.setScalar(k); h.group.position.set((i - 1.5) * 5.5, 0, 0); h.group.rotation.y = yaws[i]; s.add(h.group); return h; });
+const atk = q.get('atk') === '1';
+if (atk) hs.forEach((h) => h.attack());
+let t = 0; window.step = (n, st) => { for (let i = 0; i < n; i++) { t += 0.016; hs.forEach((h, j) => h.update(0.016, t, { moving: j >= 2 })); } r.render(s, cam); };
+window.step(atk ? 8 : 30);
+window.ready = true;
+</script></body></html>

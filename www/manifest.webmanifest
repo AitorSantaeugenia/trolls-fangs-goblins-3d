@@ -1,0 +1,10 @@
+{
+  "name": "Trolls, Fangs and Goblins 3D",
+  "short_name": "TFG 3D",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#120b07",
+  "theme_color": "#120b07",
+  "icons": [{ "src": "assets/ui/icon.png", "sizes": "640x640", "type": "image/png" }]
+}

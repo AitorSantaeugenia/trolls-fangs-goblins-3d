@@ -1,0 +1,10 @@
+{
+  "appId": "com.trollsfangsgoblins.td3d",
+  "appName": "Trolls Fangs Goblins 3D",
+  "webDir": "www",
+  "backgroundColor": "#120b07",
+  "android": {
+    "backgroundColor": "#120b07",
+    "allowMixedContent": false
+  }
+}
