@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://trolls-fangs-goblins-3d.vercel.app/">
+    <img src="docs/img/portada.jpg" alt="Trolls, Fangs &amp; Goblins 3D: torres, héroes y hordas de goblins entre la pradera y el abismo de lava" width="80%" />
+  </a>
+</p>
+
 # Trolls, Fangs & Goblins 3D
 
 > [!IMPORTANT]
