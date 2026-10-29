@@ -2,6 +2,7 @@
 
 > [!IMPORTANT]
 > **🎮 Juega ahora: [trolls-fangs-goblins-3d.vercel.app](https://trolls-fangs-goblins-3d.vercel.app/)**
+>
 > Funciona en el navegador, sin instalar nada. Mejor en ordenador.
 
 Tower defense en 3D para el navegador, hecho con **three.js**. Es un remake del *Trolls, Fangs and Goblins TD* original (Canvas 2D): 5 mapas, 7 torres, 3 héroes con habilidades, modo infinito con **clasificación online**, editor de mapas y **mapas de la comunidad**.
