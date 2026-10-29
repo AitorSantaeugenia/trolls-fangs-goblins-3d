@@ -4,10 +4,11 @@ node_modules/
 # datos del servidor local (clasificación, mapas de la comunidad, visitas)
 data/
 
-# secretos: cadenas de conexión, contraseñas
+# secretos: cadenas de conexión, contraseñas, notas privadas
 .env
 .env.*
 !.env.example
+noUpload.txt
 
 # app de escritorio de administración: solo para ti, no se publica
 admin-app/
