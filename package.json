@@ -4,7 +4,6 @@
   "description": "Remake 3D (three.js) de Trolls, Fangs and Goblins TD para navegador",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=18" },
   "scripts": {
     "start": "node server.mjs",
     "balance": "node tools/balance.mjs"
