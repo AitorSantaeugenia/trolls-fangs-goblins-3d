@@ -8,7 +8,7 @@ data/
 .env
 .env.*
 !.env.example
-noUpload.txt
+noUpload*
 
 # app de escritorio de administración: solo para ti, no se publica
 admin-app/
